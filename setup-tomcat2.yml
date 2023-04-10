@@ -1,0 +1,45 @@
+---
+- name: Setup tomcat server
+  hosts: all
+  become: true
+  tasks:
+  - name: Installing Java on red-hat
+    yum:
+      name: java 
+      state: installed
+    when: ansible_os_family == "RedHat"
+
+  - name: Only run "update_cache=yes" if the last one is more than 3600 seconds ago
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+
+  - name: Install JAVA related Ubuntu packages
+    apt:
+      name: "{{ packages }}"
+      state: present
+      vars:
+        packages:
+        - openjdk-8-jdk
+    when: ansible_os_family == "Debian"
+
+  - name: Download tomcat Packages
+    get_url:
+      url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.73/bin/apache-tomcat-9.0.73.tar.gz
+      dest: /opt
+
+  - name: Untar apache packages
+    unarchive:
+      src: /opt/apache-tomcat-9.0.73.tar.gz
+      dest: /opt
+      remote_src: yes
+
+  - name: Add execution permission on startup.sh file
+    file:
+      path: /opt/apache-tomcat-9.0.73/bin/startup.sh
+      mode: 0777
+
+  - name: start tomcat service
+    shell: nohup ./startup.sh
+    args:
+      chdir: /opt/apache-tomcat-9.0.73/bin

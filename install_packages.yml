@@ -1,0 +1,10 @@
+---
+- name: This Playbook Install Packages
+  hosts: amazonlinux 
+    # become: true
+
+  tasks:
+  - name: Install Package
+    yum: 
+      name: tree
+      state: installed

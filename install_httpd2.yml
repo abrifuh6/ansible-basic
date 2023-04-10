@@ -1,0 +1,16 @@
+---
+- name: This playbook will install httpd
+  hosts: redhat
+  become: true
+  tasks:
+  - name: Install httpd
+    yum: 
+      name:  httpd
+      state: installed  
+    notify: start httpd service
+
+  handlers: 
+  - name: start httpd service
+    service:
+      name: httpd
+      state: started
